@@ -18,11 +18,13 @@ all:	rename zip
 
 rename:
 	mv $(BASENAME).drl           $(BASENAME).plated-drill.txt
-	mv $(BASENAME)-F_Cu.gtl      $(BASENAME).frontmask.gts
 	mv $(BASENAME)-F_SilkS.gto   $(BASENAME).frontsilk.gbo
+	mv $(BASENAME)-F_Mask.gts    $(BASENAME).frontmask.gts
+	mv $(BASENAME)-F_Cu.gtl      $(BASENAME).front.gtl
 	mv $(BASENAME)-Edge_Cuts.gbr $(BASENAME).outline.gm1
-	mv $(BASENAME)-B_Cu.gbl      $(BASENAME).backmask.gbs
 	mv $(BASENAME)-B_SilkS.gbo   $(BASENAME).backsilk.gbo
+	mv $(BASENAME)-B_Mask.gbs    $(BASENAME).backmask.gbs
+	mv $(BASENAME)-B_Cu.gbl      $(BASENAME).back.gbl
 
 zip:
 	[ "$(REVISION)" ] || ( echo "no current revision found!" ; false )
