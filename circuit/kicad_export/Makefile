@@ -12,6 +12,12 @@ BASENAME=tasta
 # try to find out current hardware revision (so add a tag _before_ calling this makefile!)
 REVISION=$(shell git describe --tags)
 
+# needed to check if the revision matches the PCB
+PCBFILE=../kicad_source/tasta.kicad_pcb
+
+# switch the format of the string
+PCBREVISION=$(subst _,. ,$(REVISION))
+
 ZIPFILE=$(BASENAME)_$(REVISION).zip
 
 all:	rename zip
@@ -28,4 +34,5 @@ rename:
 
 zip:
 	[ "$(REVISION)" ] || ( echo "no current revision found!" ; false )
+	grep -q "$(PCBREVISION)" $(PCBFILE) || (echo "revision on PCB does not match!" ; false )
 	zip $(ZIPFILE) $(BASENAME).*.*
