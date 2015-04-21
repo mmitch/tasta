@@ -83,7 +83,7 @@
       (mirror false)
       (drillshape 0)
       (scaleselection 1)
-      (outputdirectory /tmp))
+      (outputdirectory ../kicad_export/))
   )
 
   (net 0 "")
@@ -704,7 +704,7 @@
   (gr_text "tasta\n" (at 64.77 82.55 270) (layer F.SilkS)
     (effects (font (size 1.27 1.27) (thickness 0.3)))
   )
-  (gr_text "cgarbs.de\nrev. 0x0002\n" (at 83.82 80.01 90) (layer F.SilkS)
+  (gr_text "cgarbs.de\nrev. 0x0003\n" (at 83.82 80.01 90) (layer F.SilkS)
     (effects (font (size 1.27 1.27) (thickness 0.3)))
   )
 
