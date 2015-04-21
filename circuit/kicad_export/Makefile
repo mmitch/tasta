@@ -24,7 +24,7 @@ all:	rename zip
 
 rename:
 	mv $(BASENAME).drl           $(BASENAME).plated-drill.txt
-	mv $(BASENAME)-F_SilkS.gto   $(BASENAME).frontsilk.gbo
+	mv $(BASENAME)-F_SilkS.gto   $(BASENAME).frontsilk.gto
 	mv $(BASENAME)-F_Mask.gts    $(BASENAME).frontmask.gts
 	mv $(BASENAME)-F_Cu.gtl      $(BASENAME).front.gtl
 	mv $(BASENAME)-Edge_Cuts.gbr $(BASENAME).outline.gm1
