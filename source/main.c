@@ -243,10 +243,8 @@ int main(void)
 
 	wdt_enable(WDTO_2S);
 	hardwareInit();
-	odDebugInit();
 	usbInit();
 	sei();
-	DBG1(0x00, 0, 0);
 	for (;;) /* main event loop */
 	{
 		wdt_reset();
