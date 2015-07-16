@@ -329,9 +329,9 @@ int main(void)
 			TIFR = 1<<TOV0; /* clear overflow */
 			if (idleRate != 0)
 			{
-				if (idleCounter >= OVERFLOW_4MS)
+				if (idleCounter >= OVERFLOWS_4MS)
 				{
-					idleCounter -= OVERFLOW_4MS;
+					idleCounter -= OVERFLOWS_4MS;
 				}
 				else
 				{
