@@ -15,12 +15,13 @@
  * Source: https://www.obdev.at/downloads/vusb/HIDKeys.2012-12-08.tar.gz
  */
 
+#include <avr/eeprom.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include <avr/wdt.h>
 
-#include "usbdrv.h"
+#include "usbdrv/usbdrv.h"
 
 /* ----------------------- hardware I/O abstraction ------------------------ */
 
