@@ -209,18 +209,26 @@ uchar usbFunctionSetup(uchar data[8])
 	usbRequest_t    *rq = (void *)data;
 
 	usbMsgPtr = reportBuffer;
-	if((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_CLASS){    /* class request type */
-		if(rq->bRequest == USBRQ_HID_GET_REPORT){  /* wValue: ReportType (highbyte), ReportID (lowbyte) */
+	if ((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_CLASS) /* class request type */
+	{
+		if (rq->bRequest == USBRQ_HID_GET_REPORT) /* wValue: ReportType (highbyte), ReportID (lowbyte) */
+		{
 			/* we only have one report type, so don't look at wValue */
 			buildReport(keyPressed());
 			return sizeof(reportBuffer);
-		}else if(rq->bRequest == USBRQ_HID_GET_IDLE){
+		}
+		else if(rq->bRequest == USBRQ_HID_GET_IDLE)
+		{
 			usbMsgPtr = &idleRate;
 			return 1;
-		}else if(rq->bRequest == USBRQ_HID_SET_IDLE){
+		}
+		else if(rq->bRequest == USBRQ_HID_SET_IDLE)
+		{
 			idleRate = rq->wValue.bytes[1];
 		}
-	}else{
+	}
+	else
+	{
 		/* no vendor specific requests implemented */
 	}
 	return 0;
@@ -239,26 +247,34 @@ int main(void)
 	usbInit();
 	sei();
 	DBG1(0x00, 0, 0);
-	for(;;){	/* main event loop */
+	for (;;) /* main event loop */
+	{
 		wdt_reset();
 		usbPoll();
 		key = keyPressed();
-		if(lastKey != key){
+		if (lastKey != key)
+		{
 			lastKey = key;
 			keyDidChange = 1;
 		}
-		if(TIFR & (1<<TOV0)){   /* 22 ms timer */
+		if (TIFR & (1<<TOV0)) /* 22 ms timer */
+		{
 			TIFR = 1<<TOV0;
-			if(idleRate != 0){
-				if(idleCounter > 4){
-					idleCounter -= 5;   /* 22 ms in units of 4 ms */
-				}else{
+			if (idleRate != 0)
+			{
+				if (idleCounter > 4)
+				{
+					idleCounter -= 5; /* 22 ms in units of 4 ms */
+				}
+				else
+				{
 					idleCounter = idleRate;
 					keyDidChange = 1;
 				}
 			}
 		}
-		if(keyDidChange && usbInterruptIsReady()){
+		if (keyDidChange && usbInterruptIsReady())
+		{
 			keyDidChange = 0;
 			/* use last key and not current key status in order to avoid lost
 			   changes in key status. */
