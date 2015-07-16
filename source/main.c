@@ -52,23 +52,31 @@ PB5     reset (in hardware; unused here)
 
 static void hardwareInit(void)
 {
-	uchar	i, j;
-
-	PORTB = 0xff;   /* activate all pull-ups */
-	DDRB = 0;       /* all pins input */
-	PORTC = 0xff;   /* activate all pull-ups */
-	DDRC = 0;       /* all pins input */
-	PORTD = 0xfa;   /* 1111 1010 bin: activate pull-ups except on USB lines */
-	DDRD = 0x07;    /* 0000 0111 bin: all pins input except USB (-> USB reset) */
-	j = 0;
-	while(--j){     /* USB Reset by device only required on Watchdog Reset */
-		i = 0;
-		while(--i); /* delay >10ms for USB reset */
+	uchar i;
+	
+	usbInit();
+	usbDeviceDisconnect();  /* enforce re-enumeration, do this while interrupts are disabled! */
+	i = 0;
+	while(--i){             /* fake USB disconnect for > 250 ms */
+		wdt_reset();
+		_delay_ms(1);
 	}
-	DDRD = 0x02;    /* 0000 0010 bin: remove USB reset condition */
-	/* configure timer 0 for a rate of 12M/(1024 * 256) = 45.78 Hz (~22ms) */
-	TCCR0 = 5;      /* timer 0 prescaler: 1024 */
+	usbDeviceConnect();
+
+	/* activate pull-ups for the buttons */
+	BUTTON_PORT |= _BV(BUTTON1_BIT) | _BV(BUTTON2_BIT);
+
+	/* initialize LED output */
+	LED_DDR |= _BV(LED_BIT);
+	LED_ON;
+
+	/* select clock: 16.5M/1k -> overflow rate = 16.5M/256k = 62.94 Hz (~11ms) */
+	TCCR1 = 0x0b;
 }
+
+/* USB IDLE is counted in 4ms - how many are there in one timer overflow (~11ms)? */
+#define OVERFLOWS_4MS 3
+/* TODO: this is slightly too much, would 2 be better? */
 
 /* ------------------------------------------------------------------------- */
 
@@ -84,12 +92,15 @@ static uchar keyPressed(void)
 {
 	if (GET_BIT(BUTTON_PIN, BUTTON1_BIT))
 	{
+		LED_ON;
 		return 1;
 	}
 	if (GET_BIT(BUTTON_PIN, BUTTON2_BIT))
 	{
+		LED_ON;
 		return 2;
 	}
+	LED_OFF;
 	return 0;
 }
 
@@ -243,7 +254,6 @@ int main(void)
 
 	wdt_enable(WDTO_2S);
 	hardwareInit();
-	usbInit();
 	sei();
 	for (;;) /* main event loop */
 	{
@@ -255,14 +265,14 @@ int main(void)
 			lastKey = key;
 			keyDidChange = 1;
 		}
-		if (TIFR & (1<<TOV0)) /* 22 ms timer */
+		if (TIFR & (1<<TOV0)) /* ~63 ms timer */
 		{
-			TIFR = 1<<TOV0;
+			TIFR = 1<<TOV0; /* clear overflow */
 			if (idleRate != 0)
 			{
-				if (idleCounter > 4)
+				if (idleCounter >= OVERFLOW_4MS)
 				{
-					idleCounter -= 5; /* 22 ms in units of 4 ms */
+					idleCounter -= OVERFLOW_4MS;
 				}
 				else
 				{
@@ -277,7 +287,7 @@ int main(void)
 			/* use last key and not current key status in order to avoid lost
 			   changes in key status. */
 			buildReport(lastKey);
-			usbSetInterrupt(reportBuffer, sizeof(reportBuffer));
+
 		}
 	}
 	return 0;
