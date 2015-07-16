@@ -1,11 +1,18 @@
-/* Name: main.c
+/*
+ * tasta - simple USB keyboard for ATtiny85
+ * Copyright (C) 2015 Christian Garbs <mitch@cgarbs.de>
+ *
+ * based upon HIDKeys example from V-USB/obdev:
+ *
+ *
+ * Name: main.c
  * Project: HID-Test
  * Author: Christian Starkjohann
  * Creation Date: 2006-02-02
- * Tabsize: 4
  * Copyright: (c) 2006 by OBJECTIVE DEVELOPMENT Software GmbH
- * License: GNU GPL v2 (see License.txt) or proprietary (CommercialLicense.txt)
- * This Revision: $Id$
+ * License: GNU GPL v2
+ * Homepage: http://www.obdev.at/vusb/
+ * Source: https://www.obdev.at/downloads/vusb/HIDKeys.2012-12-08.tar.gz
  */
 
 #include <avr/io.h>
@@ -14,34 +21,34 @@
 #include <avr/wdt.h>
 
 #include "usbdrv.h"
-#include "oddebug.h"
 
 /* ----------------------- hardware I/O abstraction ------------------------ */
 
 /* pin assignments:
-   PB0	Key 1
-   PB1	Key 2
-   PB2	Key 3
-   PB3	Key 4
-   PB4	Key 5
-   PB5 Key 6
-
-   PC0	Key 7
-   PC1	Key 8
-   PC2	Key 9
-   PC3	Key 10
-   PC4	Key 11
-   PC5	Key 12
-
-   PD0	USB-
-   PD1	debug tx
-   PD2	USB+ (int0)
-   PD3	Key 13
-   PD4	Key 14
-   PD5	Key 15
-   PD6	Key 16
-   PD7	Key 17
+PB0	LED (input, sink, low=on)
+PB1     USB data -
+PB2     USB data +
+PB3     button 2
+PB4     button 1
+PB5     reset (in hardware; unused here)
 */
+
+#define BUTTON_PORT     PORTB       /* PORTx - register for buttons */
+#define BUTTON_PIN      PINB        /* PINx  - register for buttons */
+#define LED_DDR         DDRB        /* DDRx  - register for LED */
+
+#define BUTTON1_BIT     PB4         /* bit for button 1 in button register */
+#define BUTTON2_BIT     PB3         /* bit for button 2 in button register */
+#define LED_BIT         PB0         /* bit for LED in LED register */
+
+
+/* some bitbanging magic */
+
+#define LED_ON      (LED_PORT &= ~_BV(LED_BIT))
+#define LED_OFF     (LED_PORT |=  _BV(LED_BIT))
+
+#define GET_BIT(pin,bit) (pin & _BV(bit))
+
 
 static void hardwareInit(void)
 {
@@ -65,35 +72,23 @@ static void hardwareInit(void)
 
 /* ------------------------------------------------------------------------- */
 
-#define NUM_KEYS    17
+#define NUM_KEYS 2
 
 /* The following function returns an index for the first key pressed. It
  * returns 0 if no key is pressed.
+ *
+ * TODO: make both keys work independently from each other (don't let button 1
+ *       'overshadow' button 2)
  */
 static uchar keyPressed(void)
 {
-	uchar   i, mask, x;
-
-	x = PINB;
-	mask = 1;
-	for(i=0;i<6;i++){
-		if((x & mask) == 0)
-			return i + 1;
-		mask <<= 1;
+	if (GET_BIT(BUTTON_PIN, BUTTON1_BIT))
+	{
+		return 1;
 	}
-	x = PINC;
-	mask = 1;
-	for(i=0;i<6;i++){
-		if((x & mask) == 0)
-			return i + 7;
-		mask <<= 1;
-	}
-	x = PIND;
-	mask = 1 << 3;
-	for(i=0;i<5;i++){
-		if((x & mask) == 0)
-			return i + 13;
-		mask <<= 1;
+	if (GET_BIT(BUTTON_PIN, BUTTON2_BIT))
+	{
+		return 2;
 	}
 	return 0;
 }
@@ -141,11 +136,11 @@ const PROGMEM char usbHidReportDescriptor[35] = {   /* USB report descriptor */
 #define MOD_CONTROL_LEFT    (1<<0)
 #define MOD_SHIFT_LEFT      (1<<1)
 #define MOD_ALT_LEFT        (1<<2)
-#define MOD_GUI_LEFT        (1<<3)
+#define MOD_GUI_LEFT        (1<<3)  /* "Windows" key */
 #define MOD_CONTROL_RIGHT   (1<<4)
 #define MOD_SHIFT_RIGHT     (1<<5)
 #define MOD_ALT_RIGHT       (1<<6)
-#define MOD_GUI_RIGHT       (1<<7)
+#define MOD_GUI_RIGHT       (1<<7)  /* "Windows" key */
 
 #define KEY_A       4
 #define KEY_B       5
@@ -199,23 +194,8 @@ const PROGMEM char usbHidReportDescriptor[35] = {   /* USB report descriptor */
 
 static const uchar keyReport[NUM_KEYS + 1][2] PROGMEM = {
 	/* none */  {0, 0},                     /* no key pressed */
-	/*  1 */    {MOD_SHIFT_LEFT, KEY_A},
-	/*  2 */    {MOD_SHIFT_LEFT, KEY_B},
-	/*  3 */    {MOD_SHIFT_LEFT, KEY_C},
-	/*  4 */    {MOD_SHIFT_LEFT, KEY_D},
-	/*  5 */    {MOD_SHIFT_LEFT, KEY_E},
-	/*  6 */    {MOD_SHIFT_LEFT, KEY_F},
-	/*  7 */    {MOD_SHIFT_LEFT, KEY_G},
-	/*  8 */    {MOD_SHIFT_LEFT, KEY_H},
-	/*  9 */    {MOD_SHIFT_LEFT, KEY_I},
-	/* 10 */    {MOD_SHIFT_LEFT, KEY_J},
-	/* 11 */    {MOD_SHIFT_LEFT, KEY_K},
-	/* 12 */    {MOD_SHIFT_LEFT, KEY_L},
-	/* 13 */    {MOD_SHIFT_LEFT, KEY_M},
-	/* 14 */    {MOD_SHIFT_LEFT, KEY_N},
-	/* 15 */    {MOD_SHIFT_LEFT, KEY_O},
-	/* 16 */    {MOD_SHIFT_LEFT, KEY_P},
-	/* 17 */    {MOD_SHIFT_LEFT, KEY_Q},
+	/*  1 */    {MOD_GUI_LEFT,  0},         /* left windows key (modifier only) */
+	/*  2 */    {MOD_GUI_RIGHT, 0},         /* right windows key (modifier only) */
 };
 
 static void buildReport(uchar key)
