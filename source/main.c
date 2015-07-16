@@ -26,7 +26,7 @@
 /* ----------------------- hardware I/O abstraction ------------------------ */
 
 /* pin assignments:
-PB0	LED (input, sink, low=on)
+PB0	LED (output, but acts as a sink: deactivate pullup = LED on)
 PB1     USB data -
 PB2     USB data +
 PB3     button 2
@@ -34,17 +34,17 @@ PB4     button 1
 PB5     reset (in hardware; unused here)
 */
 
-#define BUTTON_PORT     PORTB       /* PORTx - register for buttons */
-#define BUTTON_PIN      PINB        /* PINx  - register for buttons */
-#define LED_DDR         DDRB        /* DDRx  - register for LED */
+#define BUTTON_PORT     PORTB       /* PORTx - register for buttons (pullups) */
+#define BUTTON_PIN      PINB        /* PINx  - register for buttons (input state) */
+#define LED_PORT        PORTB       /* PORTx - register for LED (pullups) */
+#define LED_DDR         DDRB        /* DDRx  - register for LED (set to output) */
 
 #define BUTTON1_BIT     PB4         /* bit for button 1 in button register */
 #define BUTTON2_BIT     PB3         /* bit for button 2 in button register */
 #define LED_BIT         PB0         /* bit for LED in LED register */
 
 
-/* some bitbanging magic */
-
+/* LED is controlled via pull-up: no pullup = acts as sink = LED on */
 #define LED_ON      (LED_PORT &= ~_BV(LED_BIT))
 #define LED_OFF     (LED_PORT |=  _BV(LED_BIT))
 
