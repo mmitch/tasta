@@ -16,10 +16,12 @@
  */
 
 #include <avr/eeprom.h>
-#include <avr/io.h>
 #include <avr/interrupt.h>
+#include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <avr/wdt.h>
+#include <util/delay.h>
+#include <stdlib.h>
 
 #include "usbdrv/usbdrv.h"
 
