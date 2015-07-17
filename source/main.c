@@ -45,6 +45,8 @@ PB5     reset (in hardware; unused here)
 #define BUTTON2_BIT     PB3         /* bit for button 2 in button register */
 #define LED_BIT         PB0         /* bit for LED in LED register */
 
+#define KEY1            (1 << 0)    /* bitmask for key 1 */
+#define KEY2            (1 << 1)    /* bitmask for key 2 */
 
 /* LED is controlled via pull-up: no pullup = acts as sink = LED on */
 #define LED_ON      (LED_PORT &= ~_BV(LED_BIT))
@@ -100,26 +102,47 @@ static void hardwareInit(void)
  */
 static uchar keyPressed(void)
 {
+	uchar keystate = 0;
+
 	if (GET_BIT(BUTTON_PIN, BUTTON1_BIT))
 	{
-		LED_ON;
-		return 1;
+		keystate |= KEY1;
 	}
 	if (GET_BIT(BUTTON_PIN, BUTTON2_BIT))
 	{
-		LED_ON;
-		return 2;
+		keystate |= KEY2;
 	}
-	LED_OFF;
-	return 0;
+
+
+
+	/*********************************************/
+	/* EDIT BELOW FOR YOUR OWN LED CONFIGURATION */
+
+	if (keystate == 0)
+	{
+		LED_OFF;
+	}
+	else
+	{
+		LED_ON;
+	}
+
+	/* EDIT ABOVE FOR YOUR OWN LED CONFIGURATION */
+	/*********************************************/
+
+
+
+	return keystate;
 }
 
 /* ------------------------------------------------------------------------- */
 /* ----------------------------- USB interface ----------------------------- */
 /* ------------------------------------------------------------------------- */
 
-static uchar    reportBuffer[2];    /* buffer for HID reports */
-static uchar    idleRate;           /* in 4 ms units */
+static uchar reportBuffer[3];    /* buffer for HID reports */
+static uchar idleRate;           /* in 4 ms units */
+
+#define KEYS_IN_REPORT 2   /* modifier does not count, only slots for real keys (the REPORT_COUNT of the second INPUT below) */
 
 const PROGMEM char usbHidReportDescriptor[35] = {   /* USB report descriptor */
 	0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
@@ -133,7 +156,7 @@ const PROGMEM char usbHidReportDescriptor[35] = {   /* USB report descriptor */
 	0x75, 0x01,                    //   REPORT_SIZE (1)
 	0x95, 0x08,                    //   REPORT_COUNT (8)
 	0x81, 0x02,                    //   INPUT (Data,Var,Abs)
-	0x95, 0x01,                    //   REPORT_COUNT (1)
+	0x95, 0x02,                    //   REPORT_COUNT (2)
 	0x75, 0x08,                    //   REPORT_SIZE (8)
 	0x25, 0x65,                    //   LOGICAL_MAXIMUM (101)
 	0x19, 0x00,                    //   USAGE_MINIMUM (Reserved (no event indicated))
@@ -162,6 +185,8 @@ const PROGMEM char usbHidReportDescriptor[35] = {   /* USB report descriptor */
 #define MOD_SHIFT_RIGHT     (1<<5)
 #define MOD_ALT_RIGHT       (1<<6)
 #define MOD_GUI_RIGHT       (1<<7)  /* "Windows" key */
+
+#define KEY_ERROR_ROLLOVER  1       /* error condition "too many keys at once pressed" */
 
 #define KEY_A       4
 #define KEY_B       5
@@ -200,6 +225,8 @@ const PROGMEM char usbHidReportDescriptor[35] = {   /* USB report descriptor */
 #define KEY_9       38
 #define KEY_0       39
 
+#define KEY_ENTER   40
+
 #define KEY_F1      58
 #define KEY_F2      59
 #define KEY_F3      60
@@ -213,16 +240,65 @@ const PROGMEM char usbHidReportDescriptor[35] = {   /* USB report descriptor */
 #define KEY_F11     68
 #define KEY_F12     69
 
-static const uchar keyReport[NUM_KEYS + 1][2] PROGMEM = {
-	/* none */  {0, 0},                     /* no key pressed */
-	/*  1 */    {MOD_GUI_LEFT,  0},         /* left windows key (modifier only) */
-	/*  2 */    {MOD_GUI_RIGHT, 0},         /* right windows key (modifier only) */
-};
-
 static void buildReport(uchar key)
 {
-/* This (not so elegant) cast saves us 10 bytes of program memory */
-	*(int *)reportBuffer = pgm_read_word(keyReport[key]);
+	uchar modifiers = 0;
+	uchar keypos = 0;
+
+	/* Key test examples follow:
+
+	if (key & KEY1)
+	{
+		// one modifier, no key
+		modifiers |= MOD_GUI_LEFT;
+	}
+
+	if (key & KEY2)
+	{
+		// *two* keys, no modifier
+		reportBuffer[++keypos] = KEY_A;
+		reportBuffer[++keypos] = KEY_B;
+	}
+
+	*/
+
+
+
+	/*********************************************/
+	/* EDIT BELOW FOR YOUR OWN KEY CONFIGURATION */
+
+	if (key & KEY1)
+	{
+		modifiers |= MOD_GUI_LEFT;
+	}
+
+	if (key & KEY2)
+	{
+		reportBuffer[++keypos] = KEY_ENTER;
+	}
+
+	/* EDIT ABOVE FOR YOUR OWN KEY CONFIGURATION */
+	/*********************************************/
+
+
+	
+	if (keypos > KEYS_IN_REPORT)
+	{
+		/* Keyboard ErrorRollOver condition (too many keys pressed) */
+		keypos = 0;
+		while (keypos < KEYS_IN_REPORT)
+		{
+			reportBuffer[++keypos] = KEY_ERROR_ROLLOVER;
+		}
+	}
+	else
+	{
+		/* fill remaining/unused keys in report with zero */
+		while (keypos <= KEYS_IN_REPORT)
+		{
+			reportBuffer[keypos++] = 0;
+		}
+	}
 }
 
 uchar usbFunctionSetup(uchar data[8])
