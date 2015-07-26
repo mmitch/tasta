@@ -1,0 +1,50 @@
+tasta - small USB keyboard
+Copyright (C) 2015 by  Christian Garbs <mitch@cgarbs.de>
+Licensed under GNU GPL v2 or v3
+
+Project homepage:
+-----------------
+https://github.com/mmitch/tasta
+
+
+Description:
+------------
+tasta a small USB HID keyboard with just two keys and the
+corresponding code to program the ATtiny85.  This is my first
+microcontroller/PCB project.  I developed it as a foot switch for
+push-to-talk in TeamSpeak as I don't have any spare keys (or fingers)
+during gaming.  I fiddled with this on and off over the course of two
+years, now it should be ready to do something.
+
+
+Credits:
+--------
+PCB and basic code are heavily influenced from other projects, as you
+can see in the repository log.  Other parts were rewritten, redone and
+rearranged by myself.  Credits where credits are due:
+
+ * VUSB project for USB on Atmel microcontrollers:
+   http://www.obdev.at/vusb/
+
+ * VUSB HIDKeys example project for a USB HID compliant keyboard:
+   https://www.obdev.at/products/vusb/hidkeys.html
+
+ * Information on running a VUSB project without a crystal taken from
+   flipwork's 1-Key-keyboard:
+   http://blog.flipwork.nl/?x=entry:entry081009-142605
+
+ * better OSCCAL calibration routine taken from here:
+   http://codeandlife.com/2012/02/22/v-usb-with-attiny45-attiny85-without-a-crystal/
+
+ * My PCBs were printed at Hackvana.  I've never done this before and
+   everything went right on the first try (well, on the second, I had
+   one misnamed file in the rev_0x0002 export, but that's my fault):
+   http://www.hackvana.com/
+
+
+Licensing:
+----------
+The VUSB example projects are licensed under GPL 2 or GPL 3 (you can
+choose).  The imported code from flipwork and codeandlife is based on
+VUSB projects as well (HIDKeys/EasyLogger), so they're GPL 2/3, too.
+My project thus is also GPL 2/3 and everybody's happy.
