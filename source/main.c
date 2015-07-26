@@ -75,6 +75,8 @@ static void hardwareInit(void)
 	}
 	usbDeviceConnect();
 
+	wdt_enable(WDTO_1S);
+
 	/* activate pull-ups for the buttons */
 	BUTTON_PORT |= _BV(BUTTON1_BIT) | _BV(BUTTON2_BIT);
 
@@ -390,7 +392,6 @@ int main(void)
 	uchar key, lastKey = 0, keyDidChange = 0;
 	uchar idleCounter = 0;
 
-	wdt_enable(WDTO_2S);
 	hardwareInit();
 	sei();
 	for (;;) /* main event loop */
@@ -414,6 +415,8 @@ int main(void)
 				}
 				else
 				{
+					/* USB HID poll timer reached
+					 * send current state regardless of real key change */
 					idleCounter = idleRate;
 					keyDidChange = 1;
 				}
@@ -425,7 +428,7 @@ int main(void)
 			/* use last key and not current key status in order to avoid lost
 			   changes in key status. */
 			buildReport(lastKey);
-
+			usbSetInterrupt(reportBuffer, sizeof(reportBuffer));
 		}
 	}
 	return 0;
