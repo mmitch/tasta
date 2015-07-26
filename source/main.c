@@ -106,11 +106,17 @@ static uchar keyPressed(void)
 {
 	uchar keystate = 0;
 
-	if (GET_BIT(BUTTON_PIN, BUTTON1_BIT))
+	/* 
+	 * look out (I _always_ stumble over this):
+	 * as the buttons short to GND on closing, the pin value is reversed:
+	 * button bit = 0 -> button is pressed
+	 * button bit = 1 -> button is not pressed (pull-up active)
+	 */
+	if (GET_BIT(BUTTON_PIN, BUTTON1_BIT) == 0)
 	{
 		keystate |= KEY1;
 	}
-	if (GET_BIT(BUTTON_PIN, BUTTON2_BIT))
+	if (GET_BIT(BUTTON_PIN, BUTTON2_BIT) == 0)
 	{
 		keystate |= KEY2;
 	}
