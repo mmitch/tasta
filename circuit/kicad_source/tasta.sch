@@ -35,12 +35,12 @@ EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
-Title ""
+Title "tasta"
 Date "16 mar 2015"
-Rev ""
-Comp ""
-Comment1 ""
-Comment2 ""
+Rev "rev_0x0003"
+Comp "Christian Garbs <mitch@cgarbs.de>"
+Comment1 "http://www.cgarbs.de/"
+Comment2 "https://github.com/mmitch/tasta"
 Comment3 ""
 Comment4 ""
 $EndDescr
