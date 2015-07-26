@@ -289,6 +289,8 @@ static void buildReport(uchar key)
 	/*********************************************/
 
 
+
+	reportBuffer[0] = modifiers;
 	
 	if (keypos > KEYS_IN_REPORT)
 	{
@@ -302,9 +304,9 @@ static void buildReport(uchar key)
 	else
 	{
 		/* fill remaining/unused keys in report with zero */
-		while (keypos <= KEYS_IN_REPORT)
+		while (keypos < KEYS_IN_REPORT)
 		{
-			reportBuffer[keypos++] = 0;
+			reportBuffer[++keypos] = 0;
 		}
 	}
 }
