@@ -1,6 +1,7 @@
 /*
  * tasta - simple USB keyboard for ATtiny85
  * Copyright (C) 2015 Christian Garbs <mitch@cgarbs.de>
+ * Licensed under GNU GPL v2 or v3
  *
  * based upon HIDKeys example from V-USB/obdev:
  *
@@ -10,7 +11,7 @@
  * Author: Christian Starkjohann
  * Creation Date: 2006-02-02
  * Copyright: (c) 2006 by OBJECTIVE DEVELOPMENT Software GmbH
- * License: GNU GPL v2
+ * License: GNU GPL v2  (or GNU GPL v3 as the complete License.txt says)
  * Homepage: http://www.obdev.at/vusb/
  * Source: https://www.obdev.at/downloads/vusb/HIDKeys.2012-12-08.tar.gz
  */
