@@ -17,6 +17,50 @@ during gaming.  I fiddled with this on and off over the course of two
 years, now it should be ready to do something.
 
 
+Hardware:
+---------
+The curcuit schematics and PCB layout are available in different
+formats in the 'circuit' subdirectory.  They were created with KiCad,
+so it's propably best to edit them with KiCad, too, if the need
+arises.
+
+There are some optional components in the layout:
+
+ - You can omit the LED and R5 if you don't need it.
+
+ - You can omit either key switch or the K1 connector as needed.  K1
+   is used to provide key input from 'offboard', like the foot switch
+   I use.
+
+ - R4 is propably not needed.  In fact, I have never included it,
+   neither in test runs nor in the final PCB.  But the docs say you
+   should pull up your reset pin, so the possibility to insert the
+   resistor is there if you should ever need it.  (I did include it
+   'just in case' so I would not have to throw away the first PCB
+   batch.)
+
+
+Software:
+---------
+To build the software, go to the 'source' directory and just run
+'make'.  A normal Atmel development environment is needed, so install
+'avr-gcc' and friends.
+
+To configure the software (to choose your own keybindings), edit
+'main.c' and look for these two sections:
+ - EDIT BELOW FOR YOUR OWN LED CONFIGURATION
+ - EDIT BELOW FOR YOUR OWN KEY CONFIGURATION
+
+Default configuration is:
+ - key 1 = GUI left (Windows key -> modifier only)
+ - key 2 = return
+ - the LED is on if key 1 || key 2 is pressed
+
+To flash the code to your ATtiny85, run 'make flash'.  The default
+configuration uses avrdude with a 'usbasp' compatible programmer.
+Edit the AVRDUDE_* variables in 'Makefile.orig' to change this.
+
+
 Credits:
 --------
 PCB and basic code are heavily influenced from other projects, as you
