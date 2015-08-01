@@ -254,35 +254,35 @@ static void buildReport(uchar key)
 	uchar modifiers = 0;
 	uchar keypos = 0;
 
+	/*********************************************/
+	/* EDIT BELOW FOR YOUR OWN KEY CONFIGURATION */
+
 	/* Key test examples follow:
 
 	if (key & KEY1)
 	{
-		// one modifier, no key
+		// one modifier, no keys
 		modifiers |= MOD_GUI_LEFT;
 	}
 
 	if (key & KEY2)
 	{
-		// *two* keys, no modifier
+		// *two* keys, no modifiers
 		reportBuffer[++keypos] = KEY_A;
 		reportBuffer[++keypos] = KEY_B;
 	}
 
 	*/
 
-
-
-	/*********************************************/
-	/* EDIT BELOW FOR YOUR OWN KEY CONFIGURATION */
-
 	if (key & KEY1)
 	{
+		// one modifier, no keys
 		modifiers |= MOD_GUI_LEFT;
 	}
 
 	if (key & KEY2)
 	{
+		// one key, no modifiers
 		reportBuffer[++keypos] = KEY_ENTER;
 	}
 
